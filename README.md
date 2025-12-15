@@ -67,12 +67,6 @@ Responsibilities:
 * State management and UX
 * Calling **only** backend-owned endpoints
 
-Intentional constraints:
-
-* No API keys
-* No knowledge of external providers
-* No real user authentication
-
 ### Backend (API Gateway / BFF)
 
 Responsibilities:
@@ -124,38 +118,6 @@ This prevents exposing the token to browser JavaScript and simulates real-world 
 
 ---
 
-## 🚦 Caching, Rate Limiting & Optimization
-
-To protect external APIs and avoid abuse, the backend implements:
-
-* Session-based rate limiting
-* In-memory caching with configurable TTL
-* Response reuse whenever possible
-
-The goal is to **preserve user experience** while respecting provider limits.
-
----
-
-## 🛡️ Fallback Data Strategy
-
-The application is designed to **avoid breaking the user experience** when an external API:
-
-* is unavailable
-* reaches its usage limit
-* returns unexpected errors
-
-### Strategy
-
-* When the API responds successfully → fresh data is returned
-* When the API fails or limits are reached →
-
-  * **historical or predefined data** is used
-  * metadata is included to indicate data origin
-
-This allows practicing **resilience and graceful degradation** without introducing databases or persistent caches.
-
----
-
 ## 🌐 APIs Used
 
 ### 📈 Coinranking API (Economy / Cryptocurrencies)
@@ -163,7 +125,6 @@ This allows practicing **resilience and graceful degradation** without introduci
 * Cryptocurrency prices, market capitalization, and volume
 * Authentication via **API key**
 * Free plan: **5,000 requests / month**
-* Commercial usage allowed
 
 Base endpoint:
 
@@ -179,7 +140,6 @@ Fallback: historical JSON data when usage limits are reached.
 
 * Martian weather data by Sol (Martian day)
 * Temperature, pressure, wind speed and direction
-* Approximate limit: **2,000 requests / hour per IP**
 
 Main endpoint:
 
@@ -205,8 +165,6 @@ Base endpoint:
 https://technology.nasa.gov/api/api/[patent|software|spinoff]/{keywords}
 ```
 
-Usage: keyword-based search with typed adapters.
-
 Fallback: predefined, normalized results.
 
 ---
@@ -223,8 +181,7 @@ Fallback: predefined, normalized results.
 
 ### Backend
 
-* Node.js
-* Express
+* Node.js / Express (adapted to Netlify Functions)
 * Environment variables for secrets
 * In-memory cache
 
@@ -243,19 +200,6 @@ This project uses **pnpm** as the default dependency manager.
 npm install -g pnpm
 ```
 
----
-
-## ▶️ Installation & Running the Project
-
-Repository structure (GitHub repository name: **GAPI**):
-
-```
-api-dashboard-project/
-├── frontend/
-├── backend/
-└── README.md
-```
-
 ### Install Dependencies
 
 From the project root:
@@ -268,33 +212,27 @@ This installs dependencies for both **frontend** and **backend**.
 
 ---
 
-### Development
+## ▶️ Development
 
-#### Frontend
+### Frontend
 
 ```
 cd frontend
 pnpm dev
 ```
 
-Starts the React application with Vite.
-
----
-
-#### Backend
+### Backend
 
 ```
 cd backend
 pnpm dev
 ```
 
-Starts the Express server acting as the API Gateway / BFF.
+Backend runs as a local API Gateway for development.
 
 ---
 
 ### Environment Variables (Backend)
-
-The backend requires environment variables for external API keys.
 
 Example `.env` file:
 
@@ -305,6 +243,23 @@ PORT=3001
 ```
 
 > ⚠️ API keys must **never** be exposed in the frontend or committed to the repository.
+
+---
+
+## 🚀 Deployment with Netlify (Frontend + Backend)
+
+This project is deployed using **Netlify**, allowing both frontend and backend (as serverless functions) in a single deployment.
+
+* **Frontend:** static build from Vite
+* **Backend:** Express endpoints adapted to Netlify Functions (`/functions`)
+
+Workflow:
+
+1. Build frontend with `pnpm build`
+2. Deploy both frontend and functions via Netlify
+3. Frontend communicates with backend functions seamlessly
+
+> This setup reflects a real-world scenario where static frontends and API endpoints are hosted together, simplifying deployment while keeping the architecture clear.
 
 ---
 
@@ -336,38 +291,21 @@ src/
  └── main.tsx
 ```
 
----
-
-### Backend
+### Backend (Netlify Functions)
 
 ```
-src/
- ├── domain/
- │    ├── entities/
- │    ├── types/
- │    └── services/
- ├── application/
- │    ├── useCases/
- ├── infrastructure/
- │    ├── apiClients/
- │    ├── mappers/
- │    └── rateLimit/
- ├── presentation/
- │    ├── routes/
- │    └── controllers/
- ├── shared/
- │    ├── config/
- │    ├── env/
- │    └── utils/
- ├── app.ts
- └── server.ts
+functions/
+ ├── api/
+ │    ├── coins.js
+ │    ├── marsWeather.js
+ │    └── nasaTech.js
+ └── utils/
+      └── helpers.js
 ```
 
 ---
 
 ## 🧭 Development Phases
-
-The project is developed following **clear phases**, prioritizing learning and avoiding overengineering.
 
 1. Environment setup
 2. Frontend and backend bootstrap
@@ -384,8 +322,6 @@ The project is developed following **clear phases**, prioritizing learning and a
 ## 🚀 Project Status
 
 🟡 **In development**
-
-This README serves as a **reference document** to maintain technical and architectural consistency as the project evolves.
 
 ---
 
