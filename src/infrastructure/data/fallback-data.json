@@ -1,0 +1,21 @@
+{
+  "coins": [
+    {
+      "id": "bitcoin",
+      "symbol": "BTC",
+      "name": "Bitcoin",
+      "price": "45000.00",
+      "change": "2.5",
+      "rank": 1
+    },
+    {
+      "id": "pi-network",
+      "symbol": "PI",
+      "name": "Pi Network",
+      "price": "0.5000",
+      "change": "-1.2",
+      "rank": 2
+    }
+  ],
+  "lastUpdated": "2025-02-18"
+}

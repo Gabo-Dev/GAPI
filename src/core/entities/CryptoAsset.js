@@ -1,14 +1,4 @@
-/**
- * @typedef {Object} CryptoAssetParams
- * @property {string} id
- * @property {string} symbol
- * @property {string} name
- * @property {number} price
- * @property {number} change24h
- * @property {string} description
- * @property {number} rank
- * @property {number[]} history 
- */
+import { formatPrice } from '../utils/formatPrice';
 
 export class CryptoAsset {
   constructor({
@@ -72,5 +62,14 @@ export class CryptoAsset {
       rank: this.rank,
       history: this.history
     };
+  }
+
+  /**
+   * Returns the formatted price based on the currency
+   * @param {Currency} currency 
+   * @returns {string}
+   */
+  getFormattedPrice(currency = 'USD') {
+    return formatPrice(this.price, currency);
   }
 }

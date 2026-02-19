@@ -91,3 +91,19 @@ The project follows 4 layers (from outer to inner):
 **Last Updated:** 2025-02-18  
 **Version:** 1.0.0  
 **Status:** Phase 2 (Domain Layer) - In Progress
+    │   ├── api/                # ApiClient (Fetch wrapper), ApiError
+    │   └── data/               # fallback-data.json (Layer 3)
+    ├── adapters/               # ADAPTER LAYER
+    │   ├── hooks/              # useCrypto, useTheme
+    │   └── context/            # ThemeContext, CurrencyContext
+    ├── presentation/           # PRESENTATION LAYER
+    │   ├── components/         # ui/ (Button, Card) and crypto/ (PriceChart)
+    │   ├── layout/             # Navbar, Footer, MainLayout
+    │   └── pages/              # Home, Detail
+    ├── utils/                  # formatters.js, validators.js
+    └── tests/                  # Vitest tests (entities, repositories, usecases)
+    ---
+
+**Last Updated:** 2025-02-18  
+**Version:** 1.0.0  
+**Status:** Phase 2 (Domain Layer) - In Progress
