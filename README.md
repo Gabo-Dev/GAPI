@@ -85,7 +85,9 @@ The project follows 4 layers (from outer to inner):
     ├── utils/                  # formatters.js, validators.js
     └── tests/                  # Vitest tests (entities, repositories, usecases)
     ---
+```
 
+## 📝 Changelog
 **Last Updated:** 2025-02-18  
 **Version:** 1.0.0  
 **Status:** Phase 2 (Domain Layer) - In Progress
