@@ -1,5 +1,6 @@
-export const ALLOWED_CRYPTOS = ['bitcoin', 'pi-network'];
-export const ALLOWED_CURRENCIES = ['USD', 'EUR', 'JPY'];
+export const ALLOWED_CRYPTOS = {
+    BITCOIN: 'Qwsogvtv82FCd',
+    PI_NETWORK: '54I_A3MXKhHjZ',
+}
 
-export const DEFAULT_CRYPTO = 'bitcoin';
-export const DEFAULT_CURRENCY = 'USD';
+export const ALLOWED__UUIDS = Object.values(ALLOWED_CRYPTOS);

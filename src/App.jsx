@@ -1,13 +1,12 @@
-import { ThemeProvider } from '@adapters/context';
-import { CurrencyProvider } from '@adapters/context';
+import { ThemeProvider } from '@adapters/context/index.jsx';
 import React from 'react';
 
-function App(){
-  return(
+function App() {
+  return (
     <ThemeProvider>
-      <CurrencyProvider>
+      <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
         <h1>Gapi - Crypto Dashboard</h1>
-      </CurrencyProvider>
+      </div>
     </ThemeProvider>
   )
 }

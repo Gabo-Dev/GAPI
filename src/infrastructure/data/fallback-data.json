@@ -1,21 +1,35 @@
 {
-  "coins": [
-    {
-      "id": "bitcoin",
-      "symbol": "BTC",
-      "name": "Bitcoin",
-      "price": "45000.00",
-      "change": "2.5",
-      "rank": 1
-    },
-    {
-      "id": "pi-network",
-      "symbol": "PI",
-      "name": "Pi Network",
-      "price": "0.5000",
-      "change": "-1.2",
-      "rank": 2
-    }
-  ],
-  "lastUpdated": "2025-02-18"
+  "status": "success",
+  "data": {
+    "coins": [
+      {
+        "uuid": "Qwsogvtv82FCd",
+        "symbol": "BTC",
+        "name": "Bitcoin",
+        "description": "Bitcoin is the first decentralized digital currency, created in 2009. It has a fixed limit of 21 million coins and works without banks or governments. Often called digital gold.",
+        "color": "#f7931A",
+        "iconUrl": "https://cdn.coinranking.com/bOabBYkcX/bitcoin_btc.svg",
+        "price": "55828.56980687834",
+        "change": "-2.34",
+        "rank": 1,
+        "sparkline": [
+          "57314.33255292066", "57338.09832237261", "57218.271805459684", "57158.346713190906", "57209.81631510277", "57190.01986963906", "57233.031342549984", "57309.48441262105", "57225.11428738076", "56972.876463370994", "55256.46715869424", "54713.24034196028", "54866.64052159948", "54848.146220004506", "55011.24135740393", "55303.84023455337", "55672.36987554055", "55602.17932100662", "55886.778658108364", "56242.77951189918", "56214.13680128658", "56194.8429424519", "56209.74605412148", "56002.7016876371"
+        ]
+      },
+      {
+        "uuid": "54I_A3MXKhHjZ",
+        "symbol": "PI",
+        "name": "Pi Network Coin",
+        "description": "Pi Network is a blockchain network that allows users to mine cryptocurrency, Pi coin, on their mobile phones.",
+        "color": "#402867",
+        "iconUrl": "https://cdn.coinranking.com/dEJWskWni/pi-network-logo.png",
+        "price": "0.13719940938451894",
+        "change": "-1.52",
+        "rank": 46,
+        "sparkline": [
+          "0.13926032763213447", "0.13959959062130092", "0.13953812659037776", "0.1394780885579889", "0.13972591743561505", "0.13937988359114903", "0.13989493811446924", "0.14034423603350973", "0.1396165511146117", "0.1351011108312556", "0.13507619371573673", "0.13517260739414347", "0.13476464853896505", "0.1350393383481045", "0.13499809212849206", "0.13549198885160907", "0.13544168381946195", "0.13623527408179653", "0.1372648128783149", "0.1368312032484935", "0.13701947286026286", "0.1381024254991766", "0.13905978693449123", "0.1384626314897513"
+        ]
+      }
+    ]
+  }
 }

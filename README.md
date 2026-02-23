@@ -92,7 +92,8 @@ The project follows 4 layers (from outer to inner):
     │   └── pages/              # Home (VS Dashboard), Detail (Charts), About
     ├── utils/                  # formatters.js, validators.js
     └── tests/                  # Vitest tests (entities, repositories, usecases)
-    ```
+
+```
 ## Changelog
 
 - v1.0.0: Initial Release

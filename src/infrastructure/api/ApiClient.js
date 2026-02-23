@@ -1,9 +1,8 @@
 export class ApiClient {
   constructor(baseURL, apiKey, options = {}) {
-    this.apiKey = apiKey;
     this.baseURL = baseURL;
+    this.apiKey = apiKey;
     this.timeout = options.timeout || 10000;
-    this.retries = options.retries || 0;
     this.onRateLimit = options.onRateLimit || null;
   }
 
@@ -11,7 +10,7 @@ export class ApiClient {
     const url = `${this.baseURL}${endpoint}`;
     const { params = {}, headers = {} } = options;
 
-    // Build query string
+    // Build query string if params are provided as an object
     const queryString = new URLSearchParams(params).toString();
     const fullUrl = queryString ? `${url}?${queryString}` : url;
 
@@ -50,6 +49,7 @@ export class ApiClient {
     } catch (error) {
       clearTimeout(timeoutId);
 
+      // Timeout Error
       if (error.name === "AbortError") {
         throw new ApiError(
           `Request timeout after ${this.timeout}ms`,
@@ -58,43 +58,22 @@ export class ApiClient {
         );
       }
 
+      // Propagate known ApiErrors
       if (error instanceof ApiError) {
         throw error;
       }
 
+      // Generic Network Errors (e.g., offline)
       throw new ApiError(`Network error: ${error.message}`, 0, error.message);
     }
   }
 
-  async _handleRateLimit(endpoint){
-    if(this.onRateLimit && typeof this.onRateLimit === 'function'){
+  async _handleRateLimit(endpoint) {
+    if (this.onRateLimit && typeof this.onRateLimit === 'function') {
       await this.onRateLimit(endpoint);
     }
 
     throw new ApiError("Rate limit exceeded", 429, "Rate limit exceeded");
-  }
-
-  _shouldRetry(error, attempt){
-    if(attempt >= this.retries){
-      return false;
-    }
-
-    if(error.isServerError() || error.status === 0){
-      return true;
-    }
-
-    if(error.isRateLimit()){
-      return false;
-    }
-
-    return false;
-  }
-
-  _getRetryDelay(attempt){
-    // Backoff exponentially
-    // Avoid overload API with inmediate retries
-    const baseDelay = 1000;
-    return baseDelay * attempt;
   }
 }
 

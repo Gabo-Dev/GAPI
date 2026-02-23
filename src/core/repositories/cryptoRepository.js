@@ -1,121 +1,88 @@
-import { ALLOWED_CRYPTOS } from "../config/allowedAssets";
+import { ALLOWED_UUIDS } from '../../core/config/allowedAssets';
 
 export class CryptoRepository {
   constructor(apiClient, cacheRepository) {
     this.apiClient = apiClient;
     this.cacheRepository = cacheRepository;
-    this.cacheKey = "crypto-list";
-    this.cacheTTL = 86400000; // 1 day
+    
+    this.listCacheKey = 'crypto-list-v1';
+    this.listCacheTTL = 86400000; 
+    this.detailCacheTTL = 300000; 
   }
 
-  async getCryptoList(params = {}) {
-    const cached = await this.cacheRepository.getCryptoList(this.cacheKey);
+  async getCryptoList() {
+    // Layer 2: Check Cache
+    const cached = await this.cacheRepository.get(this.listCacheKey);
+    if (cached) {
+      return { items: cached, fromCache: true, fromFallback: false };
+    }
 
-    if (cached)
-      return {
-        items: cached,
-        total: cached.length,
-        fromCache: true,
-        fromFallback: false,
-      };
+    try {
+      // Layer 1: API Request
+      const params = new URLSearchParams();
+      
+      ALLOWED_UUIDS.forEach(uuid => params.append('uuids[]', uuid));
 
-    const response = await this.apiClient.get("/coins", {
-      params: {
-        ...params,
-        symbols: ALLOWED_CRYPTOS.join(","),
-        limit: ALLOWED_CRYPTOS.length,
-      },
-    });
+      const response = await this.apiClient.get(`/coins?${params.toString()}`);
+      
+      const items = response.data.coins.map(this._transformCoin);
+      
+      // Save to Layer 2
+      await this.cacheRepository.set(this.listCacheKey, items, this.listCacheTTL);
 
-    const items = this._transformCoins(response.data.coins);
-
-    await this.cacheRepository.set(this.cacheKey, items, this.cacheTTL);
-
-    return {
-      items,
-      total: items.length,
-      fromCache: false,
-      fromFallback: false,
-    };
+      return { items, fromCache: false, fromFallback: false };
+    } catch (error) {
+      console.warn('API failed for getCryptoList, moving to Layer 3', error.message);
+      // Layer 3: Fallback (We will connect fallback-data.json here in the next step)
+      throw error; 
+    }
   }
 
   async getCryptoDetails(uuid) {
-    const response = await this.apiClient.get(`/coin/${uuid}`);
+    const cacheKey = `crypto-detail-${uuid}`;
+    
+    // Layer 2: Check Cache (Short TTL)
+    const cached = await this.cacheRepository.get(cacheKey);
+    if (cached) {
+      return { asset: cached, fromCache: true, fromFallback: false };
+    }
+
+    try {
+      // Layer 1: API Request
+      const response = await this.apiClient.get(`/coin/${uuid}`);
+      
+      const asset = this._transformCoin(response.data.coin);
+
+      // Save to Layer 2
+      await this.cacheRepository.set(cacheKey, asset, this.detailCacheTTL);
+
+      return { asset, fromCache: false, fromFallback: false };
+    } catch (error) {
+      console.warn(`API failed for getCryptoDetails (${uuid}), moving to Layer 3`, error.message);
+      // Layer 3: Fallback
+      throw error;
+    }
+  }
+
+  /**
+   * Transforms API DTO into the Domain Entity format, ensuring strict typing.
+   * Parses strings to finite numbers.
+   * @param {Object} coinData - Raw object from Coinranking API
+   * @returns {Object} Cleaned object ready for CryptoAsset entity
+   */
+  _transformCoin(coinData) {
     return {
-      ...this._transformCoins(response.data.coin),
-      fromCache: false,
-      fromFallback: false,
+      uuid: coinData.uuid,
+      symbol: coinData.symbol,
+      name: coinData.name,
+      description: coinData.description || '',
+      rank: parseInt(coinData.rank, 10) || 0,
+      price: parseFloat(coinData.price) || 0,
+      change24h: parseFloat(coinData.change) || 0,
+      // Map sparkline strings to numbers for Recharts
+      history: Array.isArray(coinData.sparkline) 
+        ? coinData.sparkline.map(priceStr => parseFloat(priceStr) || 0)
+        : []
     };
-  }
-
-  async getCryptoHistory(uuid, timeframe = "24h") {
-    const timePeriod = this._mapTimeframeToPeriod(timeframe);
-
-    const response = await this.apiClient.get(`/coin/${uuid}/history`, {
-      params: {
-        timePeriod,
-      },
-    });
-
-    const history = this._transformHistory(response.data.history);
-
-    return {
-      data: history,
-      timeframe,
-      fromCache: false,
-      fromFallback: false,
-    };
-  }
-
-  _transformCoins(coins) {
-    return coins
-      .filter((coin) => ALLOWED_CRYPTOS.includes(coin.id))
-      .map((coin) => ({
-        id: coin.id,
-        uuid: coin.uuid,
-        symbol: coin.symbol,
-        name: coin.name,
-        price: coin.price,
-        change: coin.change,
-        rank: coin.rank,
-        iconUrl: coin.iconUrl,
-      }));
-  }
-
-  _transformCoinDetail(coin) {
-    return {
-      id: coin.id,
-      uuid: coin.uuid,
-      symbol: coin.symbol,
-      name: coin.name,
-      price: coin.price,
-      change: coin.change,
-      rank: coin.rank,
-      iconUrl: coin.iconUrl,
-      description: coin.description,
-      websiteUrl: coin.websiteUrl,
-      supply: coin.supply,
-      allTimeHigh: coin.allTimeHigh?.price,
-    };
-  }
-
-  _transformHistory(changeHistory) {
-    return (
-      changeHistory?.map((item) => ({
-        price: parseFloat(item.price),
-        timestamp: item.timestamp * 1000,
-      })) || []
-    );
-  }
-
-  _mapTimeframeToPeriod(timeframe) {
-    const map = {
-      "24h": "24h",
-      "7d": "7d",
-      "30d": "30d",
-      "3m": "3m",
-      "1y": "1y",
-    };
-    return map[timeframe] || "24h";
   }
 }

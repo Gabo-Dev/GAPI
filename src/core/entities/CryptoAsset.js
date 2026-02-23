@@ -2,16 +2,16 @@ import { formatPrice } from '../utils/formatPrice';
 
 export class CryptoAsset {
   constructor({
-    id,
+    uuid, 
     symbol,
     name,
     price,
-    change24h = 0 ,
+    change24h = 0,
     description = '',
     rank = 0,
-    history = []
-  }){
-    if(typeof id !== 'string' || id.trim() === '') throw new TypeError('CryptoAsset: id must be a non-empty string');
+    history = [] 
+  }) {
+    if(typeof uuid !== 'string' || uuid.trim() === '') throw new TypeError('CryptoAsset: uuid must be a non-empty string');
     if(typeof symbol !== 'string' || symbol.trim() === '') throw new TypeError('CryptoAsset: symbol must be a non-empty string');
     if(typeof name !== 'string' || name.trim() === '') throw new TypeError('CryptoAsset: name must be a non-empty string');
     if(typeof price !== 'number' || price < 0 || !Number.isFinite(price)) throw new TypeError('CryptoAsset: price must be a non-negative finite number');
@@ -19,7 +19,8 @@ export class CryptoAsset {
     if(typeof description !== 'string') throw new TypeError('CryptoAsset: description must be a string');
     if(typeof rank !== 'number' || rank < 0 || !Number.isInteger(rank)) throw new TypeError('CryptoAsset: rank must be a non-negative integer');
     if(!Array.isArray(history)) throw new TypeError('CryptoAsset: history must be an array');
-    this.id = id;
+    
+    this.uuid = uuid;
     this.symbol = symbol;
     this.name = name;
     this.price = price;
@@ -48,12 +49,12 @@ export class CryptoAsset {
   }
 
   /**
-   * Creates a plain object representation (for serialization)
-   * @returns {CryptoAssetParams}
+   * Creates a plain object representation (for serialization/cache)
+   * @returns {Object}
    */
   toJSON() {
     return {
-      id: this.id,
+      uuid: this.uuid,
       symbol: this.symbol,
       name: this.name,
       price: this.price,
@@ -65,11 +66,10 @@ export class CryptoAsset {
   }
 
   /**
-   * Returns the formatted price based on the currency
-   * @param {Currency} currency 
+   * Returns the formatted price in USD strictly.
    * @returns {string}
    */
-  getFormattedPrice(currency = 'USD') {
-    return formatPrice(this.price, currency);
+  getFormattedPrice() {
+    return formatPrice(this.price);
   }
 }
