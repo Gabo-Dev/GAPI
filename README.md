@@ -18,24 +18,32 @@ GAPI is a cryptocurrency dashboard built with React and Vanilla JavaScript (no T
 | **HTTP Client** | Fetch API (native) |
 | **State Management** | Context + Hooks |
 
-## 💡 Key Features & Business Logic (Whitelist)
+## 💡 Key Features & Business Logic (V1 MVP)
 
-- **Supported Cryptocurrencies:** Bitcoin (BTC) and Pi Network (PI) only.
-- **Supported Currencies:** USD (default), EUR, and JPY.
-- **Dynamic Pricing:** Smart decimal formatting:
-    - Prices ≥ 1.00 → 2 decimals (e.g., $1,234.56).
+- **VS Dashboard (Home):** A direct, optimized head-to-head comparison between Bitcoin (BTC) and Pi Network (PI).
+- **Detail View (Charts):** Dynamically generated price trend charts using Recharts and the API's native `sparkline` data.
+- **About Project:** A static section dedicated to explaining architectural decisions, design patterns applied, and lessons learned.
+- **Single Currency (USD):** All quotes are handled in US Dollars by default to optimize API consumption.
+- **Dynamic Pricing (Smart decimal formatting):** - Prices ≥ 1.00 → 2 decimals (e.g., $1,234.56).
     - Prices < 1.00 → 4 decimals (e.g., $0.0045).
-    - Always show currency symbol ($, €, ¥).
 - **Theme Persistence:** Dark/Light mode with localStorage persistence and system preference detection.
-- **Offline-Ready Search:** Client-side filtering only, works on cached/fallback data within whitelist.
-- **Visual Trends:** Color-coded price changes (Green/Red) based on 24h performance.
+
+## 🔌 API Integration (Coinranking)
+Data is sourced from the [Coinranking API](https://coinranking.com/), utilizing a free tier limited to 5,000 requests/month. To optimize this quota, the app strictly consumes two endpoints:
+- `GET /v2/coins`: Fetches the Home VS Dashboard data (BTC & PI) in a single, batched request.
+- `GET /v2/coin/:uuid`: Retrieves specific asset details and `sparkline` historical data for rendering Recharts.
+
+## 🗺️ Roadmap / Future Implementations
+- Support for multiple fiat currency selection (EUR, JPY) using `referenceCurrencyUuid`.
+- Expansion of the whitelist to include a top 10 cryptocurrency list.
+- Offline search and dynamic filtering on cached data.
 
 ## 🛡️ Security & Protection (Defense in Depth)
 
 - **3-Layer Protection:**
-    1. **UI Layer:** Only shows allowed options in dropdowns/buttons.
+    1. **UI Layer:** Restricts navigation and interactions solely to supported assets (BTC and PI).
     2. **Use Case Layer:** Validates against whitelist explicitly.
-    3. **API Request Layer:** Only requests allowed symbols to save quota.
+    3. **API Request Layer:** Only requests specific allowed UUIDs to save API request quota.
 - **Known Limitations:** API key is visible in bundle (unavoidable without backend) and advanced users can bypass via console.
 - **Mitigation:** Transparency via "About Project" section and strict caching to protect the 5,000 calls/month limit.
 
@@ -69,24 +77,24 @@ The project follows 4 layers (from outer to inner):
     ├── App.jsx
     ├── core/                   # DOMAIN LAYER
     │   ├── config/             # allowedAssets.js (Whitelist)
-    │   ├── entities/           # CryptoAsset, Currency, Theme
+    │   ├── entities/           # CryptoAsset, Theme
     │   ├── repositories/       # CryptoRepository.js (Contracts)
-    │   └── usecases/           # GetCryptoList, SearchCrypto, etc.
+    │   └── usecases/           # GetCryptoList, GetCryptoDetails, etc.
     ├── infrastructure/         # INFRASTRUCTURE LAYER
     │   ├── api/                # ApiClient (Fetch wrapper), ApiError
     │   └── data/               # fallback-data.json (Layer 3)
     ├── adapters/               # ADAPTER LAYER
     │   ├── hooks/              # useCrypto, useTheme
-    │   └── context/            # ThemeContext, CurrencyContext
+    │   └── context/            # ThemeContext
     ├── presentation/           # PRESENTATION LAYER
     │   ├── components/         # ui/ (Button, Card) and crypto/ (PriceChart)
     │   ├── layout/             # Navbar, Footer, MainLayout
-    │   └── pages/              # Home, Detail
+    │   └── pages/              # Home (VS Dashboard), Detail (Charts), About
     ├── utils/                  # formatters.js, validators.js
     └── tests/                  # Vitest tests (entities, repositories, usecases)
-    ---
-```
+    ```
+## Changelog
 
-## 📝 Changelog
-**Last Updated:** 2025-02-18  
-**Version:** 1.0.0  
+- v1.0.0: Initial Release
+Notes: 
+- MVP (V1) redefined. Home operates as a comparative Dashboard (BTC vs PI) using /v2/coins to optimize API quota. Detail view uses /v2/coin/:uuid. Added static 'About' view. Currency fixed to USD.
