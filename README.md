@@ -47,11 +47,12 @@ Data is sourced from the [Coinranking API](https://coinranking.com/), utilizing 
 - **Known Limitations:** API key is visible in bundle (unavoidable without backend) and advanced users can bypass via console.
 - **Mitigation:** Transparency via "About Project" section and strict caching to protect the 5,000 calls/month limit.
 
-## 🔄 Caching Strategy (3-Layer Fallback)
+### 🛠 Data Acquisition Strategy (3-Layer Hierarchy)
 
-1. **Layer 1: Coinranking API:** Fresh real-time data.
-2. **Layer 2: localStorage (User Cache):** TTL of 24 hours. Used when API limit (429) or network error occurs.
-3. **Layer 3: Static JSON Bundle:** Located at `src/infrastructure/data/fallback-data.json`. Ensures data is always visible even if the API quota is exhausted.
+1. **Layer 1: localStorage (User Cache):** Prioritizes local persistence for sub-10ms delivery, strictly minimizing external API overhead and preventing rate limiting.
+2. **Layer 2: Coinranking API:** Synchronizes fresh data from Coinranking v2 only when the cache is empty or expired, processing it through an internal normalization layer.
+3. **Layer 3: Static JSON Bundle:** Located at `src/core/data/fallback-data.json`. Acts as the ultimate safety net to guarantee a functional UI during network outages or API exhaustion.
+4. **Core Strategy:** A performance-driven hierarchy designed to balance resource conservation with bulletproof system availability.
 
 ## 🏗️ Architecture
 The project follows 4 layers (from outer to inner):

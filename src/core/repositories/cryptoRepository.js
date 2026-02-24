@@ -1,88 +1,69 @@
-import { ALLOWED_UUIDS } from '../../core/config/allowedAssets';
+import { ALLOWED_UUIDS } from "../config/allowedAssets";
+import fallbackData from "../../infrastructure/data/fallback-data.json";
 
 export class CryptoRepository {
   constructor(apiClient, cacheRepository) {
     this.apiClient = apiClient;
     this.cacheRepository = cacheRepository;
-    
-    this.listCacheKey = 'crypto-list-v1';
-    this.listCacheTTL = 86400000; 
-    this.detailCacheTTL = 300000; 
+    this.listCacheKey = "crypto-list-v2";
+    this.listCacheTTL = 86400000;
   }
 
   async getCryptoList() {
-    // Layer 2: Check Cache
     const cached = await this.cacheRepository.get(this.listCacheKey);
-    if (cached) {
-      return { items: cached, fromCache: true, fromFallback: false };
-    }
+    if (cached) return { items: cached, source: "cache" };
 
     try {
-      // Layer 1: API Request
       const params = new URLSearchParams();
-      
-      ALLOWED_UUIDS.forEach(uuid => params.append('uuids[]', uuid));
+      ALLOWED_UUIDS.forEach((uuid) => params.append("uuids[]", uuid));
 
       const response = await this.apiClient.get(`/coins?${params.toString()}`);
-      
-      const items = response.data.coins.map(this._transformCoin);
-      
-      // Save to Layer 2
-      await this.cacheRepository.set(this.listCacheKey, items, this.listCacheTTL);
+      const normalized = response.data.coins.map((coin) =>
+        this._transformCoin(coin),
+      );
 
-      return { items, fromCache: false, fromFallback: false };
-    } catch (error) {
-      console.warn('API failed for getCryptoList, moving to Layer 3', error.message);
-      // Layer 3: Fallback (We will connect fallback-data.json here in the next step)
-      throw error; 
+      await this.cacheRepository.set(
+        this.listCacheKey,
+        normalized,
+        this.listCacheTTL,
+      );
+      return { items: normalized, source: "api" };
+    } catch (_error) {
+      if (import.meta.env.DEV){
+        console.warn("Error fetching crypto list:", _error.message);
+      }
+      const staticItems = fallbackData.data.coins.map((coin) =>
+        this._transformCoin(coin),
+      );
+      return { items: staticItems, source: "static_fallback" };
     }
   }
 
-  async getCryptoDetails(uuid) {
-    const cacheKey = `crypto-detail-${uuid}`;
-    
-    // Layer 2: Check Cache (Short TTL)
-    const cached = await this.cacheRepository.get(cacheKey);
-    if (cached) {
-      return { asset: cached, fromCache: true, fromFallback: false };
-    }
-
-    try {
-      // Layer 1: API Request
-      const response = await this.apiClient.get(`/coin/${uuid}`);
-      
-      const asset = this._transformCoin(response.data.coin);
-
-      // Save to Layer 2
-      await this.cacheRepository.set(cacheKey, asset, this.detailCacheTTL);
-
-      return { asset, fromCache: false, fromFallback: false };
-    } catch (error) {
-      console.warn(`API failed for getCryptoDetails (${uuid}), moving to Layer 3`, error.message);
-      // Layer 3: Fallback
-      throw error;
-    }
-  }
-
-  /**
-   * Transforms API DTO into the Domain Entity format, ensuring strict typing.
-   * Parses strings to finite numbers.
-   * @param {Object} coinData - Raw object from Coinranking API
-   * @returns {Object} Cleaned object ready for CryptoAsset entity
-   */
   _transformCoin(coinData) {
+    const symbol = coinData.symbol;
+    const staticResort = fallbackData.data.coins.find(
+      (c) => c.symbol === symbol,
+    );
+
     return {
       uuid: coinData.uuid,
-      symbol: coinData.symbol,
+      symbol: symbol,
       name: coinData.name,
-      description: coinData.description || '',
-      rank: parseInt(coinData.rank, 10) || 0,
-      price: parseFloat(coinData.price) || 0,
-      change24h: parseFloat(coinData.change) || 0,
-      // Map sparkline strings to numbers for Recharts
-      history: Array.isArray(coinData.sparkline) 
-        ? coinData.sparkline.map(priceStr => parseFloat(priceStr) || 0)
-        : []
+      rank: parseInt(coinData.rank, 10) || staticResort?.rank || 0,
+      price: parseFloat(coinData.price) || parseFloat(staticResort?.price) || 0,
+      change24h:
+        parseFloat(coinData.change24h) ||
+        parseFloat(coinData.change) ||
+        parseFloat(staticResort?.change) ||
+        0,
+      description:
+        coinData.description?.trim() ||
+        staticResort?.description ||
+        "Sincronizando...",
+      iconUrl: coinData.iconUrl || staticResort?.iconUrl || "",
+      history: Array.isArray(coinData.sparkline)
+        ? coinData.sparkline.map((p) => parseFloat(p) || 0)
+        : staticResort?.sparkline?.map((p) => parseFloat(p)) || [],
     };
   }
 }

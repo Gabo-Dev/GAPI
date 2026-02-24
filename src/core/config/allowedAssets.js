@@ -3,4 +3,4 @@ export const ALLOWED_CRYPTOS = {
     PI_NETWORK: '54I_A3MXKhHjZ',
 }
 
-export const ALLOWED__UUIDS = Object.values(ALLOWED_CRYPTOS);
+export const ALLOWED_UUIDS = Object.values(ALLOWED_CRYPTOS);
