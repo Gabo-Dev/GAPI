@@ -23,11 +23,30 @@ export function useCrypto() {
         }
     }, []);
 
+    const [detailData, setDetailData] = useState([]);
+    
+    const fetchCryptoDetails = useCallback(async (uuid, timePeriod = '24h') => {
+        try {
+            setLoading(true);
+            setError(null);
+
+            const result = await useCases.getCryptoDetails.execute( uuid, timePeriod );
+            setDetailData(result.history);
+            setDataSource(result.source);
+        } catch (error) {
+            setError(error.message || 'Failed to fetch cryptocurrency details.');
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
     return {
         listData,
+        detailData,
         loading,
         error,
         dataSource,
-        fetchCryptoList
+        fetchCryptoList, 
+        fetchCryptoDetails
     };
 }

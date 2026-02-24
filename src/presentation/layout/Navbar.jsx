@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 
-export function Navbar() {
+/* eslint-disable react/prop-types */
+export function Navbar({ currentView, onNavigate }) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const navigationRoutes = [
@@ -9,9 +10,9 @@ export function Navbar() {
     { id: 'about', label: 'About GAPI' }
   ];
 
-  const desktopWrapperStyles = "hidden md:block fixed bottom-4 left-1/2 -translate-x-1/2 z-50";
+  const desktopWrapperStyles = "hidden md:block fixed bottom-2 left-1/2 -translate-x-1/2 z-50";
   const desktopListStyles = "flex items-center gap-10 px-8 py-3.5 rounded-full bg-white/70 dark:bg-slate-800/70 backdrop-blur-lg border border-slate-200/50 dark:border-slate-700/50 shadow-xl";
-  const desktopLinkStyles = "text-sm font-semibold tracking-wide text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300";
+  const desktopLinkStyles = "text-sm font-semibold tracking-wide hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-300";
 
   const mobileWrapperStyles = "md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-end justify-center w-full px-4";
   const mobilePillStyles = `
@@ -26,7 +27,14 @@ export function Navbar() {
         <ul className={desktopListStyles}>
           {navigationRoutes.map(({ id, label }) => (
             <li key={id}>
-              <a href={`#${id}`} className={desktopLinkStyles}>
+              <a
+                href={`#${id}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (onNavigate) onNavigate(id);
+                }}
+                className={`${desktopLinkStyles} ${currentView === id ? 'text-blue-600 dark:text-blue-400 font-extrabold' : 'text-slate-600 dark:text-slate-300'}`}
+              >
                 {label}
               </a>
             </li>
@@ -44,18 +52,22 @@ export function Navbar() {
             <div className="flex flex-row items-center justify-between w-full h-full px-4 animate-[fadeIn_0.4s_ease-in]">
               <div className="flex flex-row justify-around flex-1 mr-2">
                 {navigationRoutes.map(({ id, label }) => (
-                  <a 
-                    key={id} 
-                    href={`#${id}`} 
-                    onClick={() => setIsExpanded(false)} 
-                    className="text-xs font-extrabold text-slate-800 dark:text-slate-100 active:text-blue-500"
+                  <a
+                    key={id}
+                    href={`#${id}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (onNavigate) onNavigate(id); 
+                      setIsExpanded(false); 
+                    }}
+                    className={`text-xs font-extrabold active:text-blue-500 ${currentView === id ? 'text-blue-600 dark:text-blue-400' : 'text-slate-800 dark:text-slate-100'}`}
                   >
                     {label.toUpperCase()}
                   </a>
                 ))}
               </div>
-              
-              <button 
+
+              <button
                 onClick={(e) => { e.stopPropagation(); setIsExpanded(false); }}
                 className="w-8 h-8 rounded-full bg-slate-200/80 dark:bg-slate-700/80 flex items-center justify-center text-slate-600 dark:text-slate-300"
               >

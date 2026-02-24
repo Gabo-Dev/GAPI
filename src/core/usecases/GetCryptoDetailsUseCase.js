@@ -5,7 +5,7 @@ export class GetCryptoDetailsUseCase {
     this.cryptoRepository = cryptoRepository;
   }
 
-  async execute(uuid) {
+  async execute(uuid, timePeriod = '24h') {
     if (!uuid || typeof uuid !== "string") {
       return { error: "Valid crypto UUID is required" };
     }
@@ -16,7 +16,7 @@ export class GetCryptoDetailsUseCase {
     }
 
     // The repository handles Cache and Fallback JSON.
-    const result = await this.cryptoRepository.getCryptoDetails(uuid);
+    const result = await this.cryptoRepository.getCryptoHistory(uuid, timePeriod);
     
     return result;
   }

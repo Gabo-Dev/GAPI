@@ -31,7 +31,7 @@ GAPI is a cryptocurrency dashboard built with React and Vanilla JavaScript (no T
 ## 🔌 API Integration (Coinranking)
 Data is sourced from the [Coinranking API](https://coinranking.com/), utilizing a free tier limited to 5,000 requests/month. To optimize this quota, the app strictly consumes two endpoints:
 - `GET /v2/coins`: Fetches the Home VS Dashboard data (BTC & PI) in a single, batched request.
-- `GET /v2/coin/:uuid`: Retrieves specific asset details and `sparkline` historical data for rendering Recharts.
+- `GET /v2/coin/:uuid/price-history`: Return the history prices for a specific coin and their timestamp for a requested time period, useful for making the charts.
 
 ## 🗺️ Roadmap / Future Implementations
 - Support for multiple fiat currency selection (EUR, JPY) using `referenceCurrencyUuid`.
@@ -53,6 +53,16 @@ Data is sourced from the [Coinranking API](https://coinranking.com/), utilizing 
 2. **Layer 2: Coinranking API:** Synchronizes fresh data from Coinranking v2 only when the cache is empty or expired, processing it through an internal normalization layer.
 3. **Layer 3: Static JSON Bundle:** Located at `src/core/data/fallback-data.json`. Acts as the ultimate safety net to guarantee a functional UI during network outages or API exhaustion.
 4. **Core Strategy:** A performance-driven hierarchy designed to balance resource conservation with bulletproof system availability.
+
+### ⏱️ Dynamic Caching & Rate-Limit Protection (History Endpoint)
+
+To protect the free tier limit (5,000 req/month) from being exhausted by users toggling chart timeframes, the application implements a **Dynamic Multi-Key Caching** strategy for historical data:
+
+1. **UI Restriction:** Timeframes exposed to the user are intentionally limited to high-value intervals (`24h`, `7d`, `30d`) to prevent infinite query variations.
+2. **Composite Cache Keys:** Requests are cached using isolated, parameter-specific keys (e.g., `crypto-history-{uuid}-{period}`). This guarantees zero API cost when a user toggles back and forth between previously viewed timeframes.
+3. **Smart Time-To-Live (TTL):** Cache expiration scales dynamically with the requested timeframe:
+    * **Short-term (`24h`):** 1-hour TTL to maintain intra-day freshness.
+    * **Mid/Long-term (`7d`, `30d`):** 24-hour TTL, recognizing that macro trends do not require minute-by-minute invalidation, achieving extreme API economy.
 
 ## 🏗️ Architecture
 The project follows 4 layers (from outer to inner):
@@ -93,10 +103,7 @@ The project follows 4 layers (from outer to inner):
     │   └── pages/              # Home (VS Dashboard), Detail (Charts), About
     ├── utils/                  # formatters.js, validators.js
     └── tests/                  # Vitest tests (entities, repositories, usecases)
-
 ```
 ## Changelog
 
 - v1.0.0: Initial Release
-Notes: 
-- MVP (V1) redefined. Home operates as a comparative Dashboard (BTC vs PI) using /v2/coins to optimize API quota. Detail view uses /v2/coin/:uuid. Added static 'About' view. Currency fixed to USD.
