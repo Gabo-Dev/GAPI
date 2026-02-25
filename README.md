@@ -3,7 +3,7 @@
 GAPI is a cryptocurrency dashboard built with React and Vanilla JavaScript (no TypeScript), demonstrating a robust implementation of **Clean Architecture** principles in the frontend. This is a learning project focused on architecture, not a production exchange platform.
 
 ## 🚀 Live Demo
-[Visit GAPI](#) *(Link pending deployment)*
+[Visit GAPI](https://gapi-kzhgde8by-gabriels-projects-63481097.vercel.app/)
 
 ## 🛠️ Tech Stack
 | Category | Technology |
