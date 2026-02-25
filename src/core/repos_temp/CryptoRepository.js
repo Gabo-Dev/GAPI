@@ -1,4 +1,4 @@
-import { ALLOWED_UUIDS } from "../config/allowedAssets";
+import { ALLOWED_UUIDS } from "../config/allowedAssets.js";
 import fallbackData from "../../infrastructure/data/fallback-data.json";
 
 export class CryptoRepository {
