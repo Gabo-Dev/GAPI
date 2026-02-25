@@ -1,8 +1,8 @@
 import { GetCryptoListUseCase } from './GetCryptoListUseCase.js';
 import { GetCryptoDetailsUseCase } from './GetCryptoDetailsUseCase.js';
 
-import { CryptoRepository } from '../../core/repositories/CryptoRepository.js';
-import { CacheRepository } from '../../core/repositories/CacheRepository.js';
+import { CryptoRepository } from '../repositories/CryptoRepository.js';
+import { CacheRepository } from '../repositories/CacheRepository.js';
 
 import { ApiClient } from '../../infrastructure/api/ApiClient.js';
 
