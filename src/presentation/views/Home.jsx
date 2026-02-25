@@ -7,7 +7,7 @@ export function Home() {
   const { listData, loading, error, fetchCryptoList, dataSource } = useCrypto();
 
   const viewWrapperStyles = "flex-1 flex flex-col w-full min-h-0 justify-start md:justify-center";
-  const headerStyles = "mb-4 flex flex-col items-center md:items-start text-center md:text-left";
+  const headerStyles = "mb-4 lg:mt-16 flex flex-col items-center md:items-start text-center md:text-left";
   const titleStyles = "text-4xl md:text-6xl font-black tracking-tighter text-slate-900 dark:text-white mb-2";
   const subtitleStyles = "text-slate-500 dark:text-slate-400 font-medium tracking-wide";
   const gridStyles = "grid grid-cols-1 md:grid-cols-2 gap-8 w-full pb-20";
@@ -38,11 +38,11 @@ export function Home() {
     <main className={viewWrapperStyles}>
       <header className={headerStyles}>
         <StatusBadge source={dataSource} />
-
         <h2 className={titleStyles}>
           MARKET OVERVIEW
         </h2>
         <p className={subtitleStyles}>Real-time comparison between Bitcoin and Pi Network.</p>
+        
       </header>
 
       <div className={gridStyles}>
