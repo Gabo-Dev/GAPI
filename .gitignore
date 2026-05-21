@@ -30,3 +30,7 @@ dist-ssr
 
 # Developer notes
 readme_dev.md
+# Local Pi runtime state
+.atl/
+.pi/
+.pi-lens/

@@ -1,29 +1,27 @@
-import { ThemeProvider } from '@/adapters/context/index.js';
-import { MainLayout } from '@/presentation/layout/MainLayout.jsx';
-import { Home } from './presentation/views/Home.jsx';
-import { Charts } from './presentation/views/Charts.jsx';
-import { About } from './presentation/views/About.jsx';
-import React from 'react';
+import { ThemeProvider, CryptoProvider } from "@/adapters/context/index.js";
+import { MainLayout } from "@/presentation/layout/MainLayout.jsx";
+import { Home } from "./presentation/views/Home.jsx";
+import { Charts } from "./presentation/views/Charts.jsx";
+import { About } from "./presentation/views/About.jsx";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 function App() {
-  const [currentView, setCurrentView] = React.useState('home');
-
-  const renderContent = () => {
-    switch (currentView) {
-      case 'home': return <Home />;
-      case 'charts': return <Charts />;
-      case 'about': return <About />; 
-      default: return <Home />;
-    }
-  };
-
-  return (
-    <ThemeProvider>
-      <MainLayout currentView={currentView} onNavigate={setCurrentView}>
-        {renderContent()}
-      </MainLayout>
-    </ThemeProvider>
-  )
+	return (
+		<BrowserRouter>
+			<ThemeProvider>
+				<CryptoProvider>
+					<MainLayout>
+						<Routes>
+							<Route path="/" element={<Home />} />
+							<Route path="/charts" element={<Charts />} />
+							<Route path="/about" element={<About />} />
+							<Route path="*" element={<Navigate to="/" replace />} />
+						</Routes>
+					</MainLayout>
+				</CryptoProvider>
+			</ThemeProvider>
+		</BrowserRouter>
+	);
 }
 
 export default App;
